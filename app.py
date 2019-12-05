@@ -3,10 +3,7 @@ import psycopg2
 config_string= 'host = "127.0.0.1",port = "5432",database = "pet_hotel"'
 app = Flask(__name__)
 
-connection = psycopg2.connect(host = "127.0.0.1",
-                            database = "pet_hotel")
 
-cursor = connection.cursor()
 
 @app.route("/")
 def hello():
@@ -53,11 +50,15 @@ def pets():
                 print("PostgreSQL connection is closed")
 
 
-@app.route("/owner/", methods=["POST"])
+@app.route("/owner/", methods=["POST","DELETE"])
 def owner():
+    connection = psycopg2.connect(host = "127.0.0.1",
+                            database = "pet_hotel")
+
     cursor = connection.cursor()
     data = request.get_json()
     print(data["name"])
+    print(request.args.get("id")) 
     if request.method == "POST":
         try:        
             print(request.json)
@@ -75,6 +76,26 @@ def owner():
         finally:
             #closing database connection.
                 if(connection):
+                    cursor.close()
+                    connection.close()
+                    print("PostgreSQL connection is closed")
+    elif request.method == 'DELETE':
+        try:
+            id=request.args.get("id")
+            # Execute query
+            if  id:
+                cursor.execute("""DELETE FROM owner WHERE id=(%s)""", ( id,))
+                connection.commit()
+
+                response = jsonify({"message":"ok"})
+                response.status_code = 200
+                return response
+            #cursor.execute("""SELECT * FROM owner;""")
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while deleting owner ", error)
+
+        finally:
+            if(connection):
                     cursor.close()
                     connection.close()
                     print("PostgreSQL connection is closed")
