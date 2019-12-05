@@ -36,8 +36,11 @@ def pets():
         # create a response out of jsonifying our list of objects, add a status code to end.
         response = jsonify(results)
         response.status_code = 200
+        
         # close cursor
         cursor.close()
+        print('Connection closed')
+        
         # return response
         return response
         
