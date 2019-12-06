@@ -16,16 +16,19 @@ def pets():
 
     cursor = connection.cursor()
     data = request.get_json()
+    # POST PETS
     if request.method == "POST":
         try:
+            # Open a connection to db
             print(request.json)
 
             if data:
                 print(data)
+                # Execute query to post new pet
                 querytext="""INSERT INTO pets ("owner_id","pet_name","breed", "color") VALUES (%s, %s,%s,%s);"""
                 cursor.execute(querytext, ( data["owner_id"],data["pet_name"],data["breed"],data["color"],))
                 connection.commit()
-
+                # status message
                 response = jsonify({"message":"ok"})
                 response.status_code = 200
                 return response
@@ -36,8 +39,10 @@ def pets():
                       cursor.close()
                       connection.close()
                       print("PostgreSQL connection is closed")
-  # GET ROUTE
-    if request.method =='GET':
+    # END OF POST PETS
+
+    # GET PETS
+    elif request.method =='GET':
         try:
             # Open a connection to db
             connection = psycopg2.connect(host = "127.0.0.1",
@@ -80,9 +85,9 @@ def pets():
                 cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed")
-  # end get route
+  # END OF GET PETS
 
-  #DELETE PETS
+  # DELETE PETS
     elif request.method== "DELETE":
         try:
             #get the named id parameter from 
@@ -105,7 +110,7 @@ def pets():
                     cursor.close()
                     connection.close()
                     print("PostgreSQL connection is closed")
-
+    # END OF DELETE PETS
 
     #DELETE PETS
 
@@ -117,6 +122,7 @@ def owner():
     cursor = connection.cursor()
     data = request.get_json()
     print(request.args.get("id")) 
+    # GET OWNER
     if request.method == "POST":
         try:        
             print(request.json)
@@ -137,6 +143,9 @@ def owner():
                     cursor.close()
                     connection.close()
                     print("PostgreSQL connection is closed")
+    # END OF GET OWNER
+
+    # GET DELETE
     elif request.method == 'DELETE':
         try:
             id=request.args.get("id")
@@ -158,6 +167,9 @@ def owner():
                     cursor.close()
                     connection.close()
                     print("PostgreSQL connection is closed")
+    # END OF GET DELETE
+
+    # GET OWNER
     elif request.method =='GET':
         try:
             # Open a connection to db
@@ -191,6 +203,7 @@ def owner():
     
         except (Exception, psycopg2.Error) as error :
             print ("Error while connecting to PostgreSQL", error)
+        # END OF GET OWNER
         finally:
             #closing database connection.
             if(connection):
