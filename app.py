@@ -9,14 +9,34 @@ app = Flask(__name__)
 def hello():
     return "Hello World!"
 
-@app.route("/pets/", methods=["GET"])
+@app.route("/pets/", methods=["POST"])
 def pets():
     connection = psycopg2.connect(host = "127.0.0.1",
                             database = "pet_hotel")
 
     cursor = connection.cursor()
     data = request.get_json()
+    if request.method == "POST":
+        try:
+            print(request.json)
 
+            if data:
+                print(data)
+                querytext="""INSERT INTO pets ("owner_id","pet_name","breed", "color") VALUES (%s, %s,%s,%s);"""
+                cursor.execute(querytext, ( data["owner_id"],data["pet_name"],data["breed"],data["color"],))
+                connection.commit()
+
+                response = jsonify({"message":"ok"})
+                response.status_code = 200
+                return response
+
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PostgreSQL in post Pets", error)
+        finally:
+                if(connection):
+                    cursor.close()
+                    connection.close()
+                    print("PostgreSQL connection is closed")
 
 
 @app.route("/owner/", methods=["POST","DELETE","GET"])
