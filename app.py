@@ -9,51 +9,17 @@ app = Flask(__name__)
 def hello():
     return "Hello World!"
 
-@app.route("/pets/")
+@app.route("/pets/", methods=["GET"])
 def pets():
-    try:
-        # Open a connection to db
-        connection = psycopg2.connect(host = "127.0.0.1",
+    connection = psycopg2.connect(host = "127.0.0.1",
                             database = "pet_hotel")
-        # create a cursor to "a vessel between server and db"
-        cursor = connection.cursor()        
-        # Execute query
-        cursor.execute("""SELECT * FROM owner;""")
-        # Fetch all results from cursor as "rows"
-        rows = cursor.fetchall()
-        # create an empty list called results to make with our loop
-        results = []
-        # Create object to jsonify and append to results LIST
-        for row in rows:
-            obj = {
-                    "id":row[0],
-                    "name":row[1]
-            }  
-            results.append(obj)
-        # create a response out of jsonifying our list of objects, add a status code to end.
-        response = jsonify(results)
-        response.status_code = 200
-        
-        # close cursor
-        cursor.close()
-        print('Connection closed')
-        
-        # return response
-        return response
-        
-        
 
-    except (Exception, psycopg2.Error) as error :
-        print ("Error while connecting to PostgreSQL", error)
-    finally:
-        #closing database connection.
-            if(connection):
-                cursor.close()
-                connection.close()
-                print("PostgreSQL connection is closed")
+    cursor = connection.cursor()
+    data = request.get_json()
 
 
-@app.route("/owner/", methods=["POST","DELETE"])
+
+@app.route("/owner/", methods=["POST","DELETE","GET"])
 def owner():
     connection = psycopg2.connect(host = "127.0.0.1",
                             database = "pet_hotel")
@@ -102,6 +68,46 @@ def owner():
                     cursor.close()
                     connection.close()
                     print("PostgreSQL connection is closed")
+    elif request.method =='GET':
+        try:
+            # Open a connection to db
+            connection = psycopg2.connect(host = "127.0.0.1",
+                            database = "pet_hotel")
+            # create a cursor to "a vessel between server and db"
+            cursor = connection.cursor()        
+            # Execute query
+            cursor.execute("""SELECT * FROM owner;""")
+            # Fetch all results from cursor as "rows"
+            rows = cursor.fetchall()
+            # create an empty list called results to make with our loop
+            results = []
+            # Create object to jsonify and append to results LIST
+            for row in rows:
+                obj = {
+                    "id":row[0],
+                    "name":row[1]
+                }  
+                results.append(obj)
+            # create a response out of jsonifying our list of objects, add a status code to end.
+            response = jsonify(results)
+            response.status_code = 200
+        
+            # close cursor
+            cursor.close()
+            print('Connection closed')
+        
+            # return response
+            return response
+    
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PostgreSQL", error)
+        finally:
+            #closing database connection.
+            if(connection):
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed")
+
 
 if __name__ == '__main__':
     app.run()
