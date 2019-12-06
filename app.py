@@ -9,7 +9,7 @@ app = Flask(__name__)
 def hello():
     return "Hello World!"
 
-@app.route("/pets/", methods=["GET"])
+@app.route("/pets/", methods=["GET","POST","DELETE","PUT"])
 def pets():
     connection = psycopg2.connect(host = "127.0.0.1",
                             database = "pet_hotel")
@@ -17,7 +17,7 @@ def pets():
     cursor = connection.cursor()
     data = request.get_json()
 
-# GET ROUTE
+  # GET ROUTE
     if request.method =='GET':
         try:
             # Open a connection to db
@@ -61,7 +61,34 @@ def pets():
                 cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed")
-# end get route
+  # end get route
+
+  #DELETE PETS
+    elif request.method== "DELETE":
+        try:
+            #get the named id parameter from 
+            id=request.args.get("id")
+            print(id)
+            # Execute query
+            if  id:
+                cursor.execute("""DELETE FROM pets WHERE id=(%s)""", ( id,))
+                connection.commit()
+
+                response = jsonify({"message":"ok"})
+                response.status_code = 201
+                return response
+            
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while deleting pet ", error)
+
+        finally:
+            if(connection):
+                    cursor.close()
+                    connection.close()
+                    print("PostgreSQL connection is closed")
+
+
+    #DELETE PETS
 
 @app.route("/owner/", methods=["POST","DELETE","GET"])
 def owner():
