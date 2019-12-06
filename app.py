@@ -17,7 +17,51 @@ def pets():
     cursor = connection.cursor()
     data = request.get_json()
 
-
+# GET ROUTE
+    if request.method =='GET':
+        try:
+            # Open a connection to db
+            connection = psycopg2.connect(host = "127.0.0.1",
+                            database = "pet_hotel")
+            # create a cursor to "a vessel between server and db"
+            cursor = connection.cursor()        
+            # Execute query
+            cursor.execute("""SELECT * FROM pets;""")
+            # Fetch all results from cursor as "rows"
+            rows = cursor.fetchall()
+            # create an empty list called results to make with our loop
+            results = []
+            # Create object to jsonify and append to results LIST
+            for row in rows:
+                obj = {
+                    "id":row[0],
+                    "owner_id":row[1],
+                    "pet_name":row[2],
+                    "breed":row[3],
+                    "color":row[4],
+                    "check_in":row[5]
+                }  
+                results.append(obj)
+            # create a response out of jsonifying our list of objects, add a status code to end.
+            response = jsonify(results)
+            response.status_code = 200
+        
+            # close cursor
+            cursor.close()
+            print('Connection closed')
+        
+            # return response
+            return response
+    
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PostgreSQL", error)
+        finally:
+            #closing database connection.
+            if(connection):
+                cursor.close()
+                connection.close()
+                print("PostgreSQL connection is closed")
+# end get route
 
 @app.route("/owner/", methods=["POST","DELETE","GET"])
 def owner():
