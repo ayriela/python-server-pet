@@ -10,7 +10,7 @@ Install Python3
 
 # Create Virtual Environment
 Commands to run to instal virtual environment
-- pip install virtualenv
+- pip3 install virtualenv
 
 - virtualenv env
 

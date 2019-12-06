@@ -60,7 +60,6 @@ def owner():
 
     cursor = connection.cursor()
     data = request.get_json()
-    print(data["name"])
     print(request.args.get("id")) 
     if request.method == "POST":
         try:        
@@ -85,13 +84,14 @@ def owner():
     elif request.method == 'DELETE':
         try:
             id=request.args.get("id")
+            print(id)
             # Execute query
             if  id:
                 cursor.execute("""DELETE FROM owner WHERE id=(%s)""", ( id,))
                 connection.commit()
 
                 response = jsonify({"message":"ok"})
-                response.status_code = 200
+                response.status_code = 201
                 return response
             #cursor.execute("""SELECT * FROM owner;""")
         except (Exception, psycopg2.Error) as error :
