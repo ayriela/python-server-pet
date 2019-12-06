@@ -112,6 +112,8 @@ def pets():
                     print("PostgreSQL connection is closed")
     # END OF DELETE PETS
 
+    #DELETE PETS
+
 @app.route("/owner/", methods=["POST","DELETE","GET"])
 def owner():
     connection = psycopg2.connect(host = "127.0.0.1",
